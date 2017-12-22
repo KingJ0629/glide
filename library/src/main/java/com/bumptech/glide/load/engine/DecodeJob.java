@@ -262,17 +262,23 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     }
   }
 
+  /**
+   * 根据不同的runReason执行不同任务
+   */
   private void runWrapped() {
      switch (runReason) {
       case INITIALIZE:
         stage = getNextStage(Stage.INITIALIZE);
         currentGenerator = getNextGenerator();
+        // load数据
         runGenerators();
         break;
       case SWITCH_TO_SOURCE_SERVICE:
+        // load数据
         runGenerators();
         break;
       case DECODE_DATA:
+        // 数据处理
         decodeFromRetrievedData();
         break;
       default:
