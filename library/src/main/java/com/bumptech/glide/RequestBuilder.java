@@ -579,16 +579,22 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
       @NonNull Y target,
       @Nullable RequestListener<TranscodeType> targetListener,
       @NonNull RequestOptions options) {
+    // 判断是否在主线程
     Util.assertMainThread();
+    // 判断target是否为空
     Preconditions.checkNotNull(target);
+    // into前必须调用load
     if (!isModelSet) {
       throw new IllegalArgumentException("You must call #load() before calling #into()");
     }
 
     options = options.autoClone();
+    // 创建请求
     Request request = buildRequest(target, targetListener, options);
-
+    // 获取原先target的请求
     Request previous = target.getRequest();
+    // 如果请求相同而且当前设置可以使用缓存
+    // 则请求回收
     if (request.isEquivalentTo(previous)
         && !isSkipMemoryCacheWithCompletePreviousRequest(options, previous)) {
       request.recycle();
@@ -596,6 +602,7 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
       // triggering RequestListeners and Targets. If the request is failed, beginning again will
       // restart the request, giving it another chance to complete. If the request is already
       // running, we can let it continue running without interruption.
+      // 如果当前请求不在执行中, 则会重新开始请求
       if (!Preconditions.checkNotNull(previous).isRunning()) {
         // Use the previous request rather than the new one to allow for optimizations like skipping
         // setting placeholders, tracking and un-tracking Targets, and obtaining View dimensions
@@ -607,6 +614,7 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
 
     requestManager.clear(target);
     target.setRequest(request);
+    // 请求追踪
     requestManager.track(target, request);
 
     return target;

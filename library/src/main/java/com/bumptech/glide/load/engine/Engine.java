@@ -144,6 +144,7 @@ public class Engine implements EngineJobListener,
    * @param width  The target width in pixels of the desired resource.
    * @param height The target height in pixels of the desired resource.
    * @param cb     The callback that will be called when the load completes.
+   * @param onlyRetrieveFromCache 仅存内存缓存加载
    */
   public <R> LoadStatus load(
       GlideContext glideContext,
@@ -166,10 +167,11 @@ public class Engine implements EngineJobListener,
       ResourceCallback cb) {
     Util.assertMainThread();
     long startTime = LogTime.getLogTime();
-
+    // 创建缓存key
     EngineKey key = keyFactory.buildKey(model, signature, width, height, transformations,
         resourceClass, transcodeClass, options);
-
+    // 从存活资源内读取数据, 内部缓存由value为弱引用对象的map做管理, 做手动的计数管理
+    // 当资源计数为0时, 则回收
     EngineResource<?> active = loadFromActiveResources(key, isMemoryCacheable);
     if (active != null) {
       cb.onResourceReady(active, DataSource.MEMORY_CACHE);
@@ -178,25 +180,32 @@ public class Engine implements EngineJobListener,
       }
       return null;
     }
-
+    // 从内存中获取缓存数据
+    // 当内存缓存中有命中, 则将目标资源加到activeResources中
     EngineResource<?> cached = loadFromCache(key, isMemoryCacheable);
     if (cached != null) {
+      // 如果命中, 则回调加载
       cb.onResourceReady(cached, DataSource.MEMORY_CACHE);
       if (Log.isLoggable(TAG, Log.VERBOSE)) {
         logWithTimeAndKey("Loaded resource from cache", startTime, key);
       }
       return null;
     }
-
+    // EngineJob : 调度DecodeJob, 添加, 移除资源回调, 并notify回调
     EngineJob<?> current = jobs.get(key, onlyRetrieveFromCache);
+    // 当前存活的资源和内存缓存都没有的情况下
+    // 1. 先判断是否有资源(resouce什么时候回调true 不明), 如果有, 则回调加载
+    // 2. 如果加载失败, 则加载抛出异常
+    // 3. 否则, 在资源回调中添加
     if (current != null) {
       current.addCallback(cb);
       if (Log.isLoggable(TAG, Log.VERBOSE)) {
         logWithTimeAndKey("Added to existing load", startTime, key);
       }
+      // 返回当前的LoadStatus
       return new LoadStatus(cb, current);
     }
-
+    // 当资源回调中都没有的情况
     EngineJob<R> engineJob =
         engineJobFactory.build(
             key,
@@ -204,7 +213,8 @@ public class Engine implements EngineJobListener,
             useUnlimitedSourceExecutorPool,
             useAnimationPool,
             onlyRetrieveFromCache);
-
+    // 实现了Runnable接口，调度任务的核心类，整个请求的繁重工作都在这里完成：处理来自缓存或者原始的资源，应用转换动画以及transcode。
+    // 负责根据缓存类型获取不同的Generator加载数据，数据加载成功后回调DecodeJob的onDataFetcherReady方法对资源进行处理
     DecodeJob<R> decodeJob =
         decodeJobFactory.build(
             glideContext,
