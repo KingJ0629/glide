@@ -68,6 +68,7 @@ class DataCacheGenerator implements DataFetcherGenerator,
               helper.getOptions());
       if (loadData != null && helper.hasLoadPath(loadData.fetcher.getDataClass())) {
         started = true;
+        // 根据给定的数据类型的DataFetcher尝试获取数据，然后尝试通过一个或多个decodePath进行decode。
         loadData.fetcher.loadData(helper.getPriority(), this);
       }
     }

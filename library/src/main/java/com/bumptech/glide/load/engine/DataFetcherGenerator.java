@@ -48,6 +48,7 @@ interface DataFetcherGenerator {
   /**
    * Attempts to a single new {@link com.bumptech.glide.load.data.DataFetcher} and returns true if
    * a {@link com.bumptech.glide.load.data.DataFetcher} was started, and false otherwise.
+   * 从当前策略对应的Generator获取数据，数据获取成功则回调DecodeJob的onDataFetcherReady对资源进行处理。否则尝试从下一个策略的Generator获取数据
    */
   boolean startNext();
 

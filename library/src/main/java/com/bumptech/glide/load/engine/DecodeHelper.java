@@ -129,6 +129,7 @@ final class DecodeHelper<Transcode> {
         .getRegisteredResourceClasses(model.getClass(), resourceClass, transcodeClass);
   }
 
+  // 判断注册的组件是否可以处理给定的dataClass
   boolean hasLoadPath(Class<?> dataClass) {
     return getLoadPath(dataClass) != null;
   }

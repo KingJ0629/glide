@@ -27,7 +27,8 @@ import java.util.List;
  *
  * The smaller the resource you fetch, the less bandwidth and battery life you use, and the lower
  * your memory footprint per resource. </p>
- *
+ * ModelLoader是一个工厂接口。将任意复杂的model转换为准确具体的可以被DataFetcher获取的数据类型。
+ * 每一个model内部实现了一个ModelLoaderFactory，内部实现就是将model转换为Data
  * @param <Model> The type of the model.
  * @param <Data>  The type of the data that can be used by a
  * {@link com.bumptech.glide.load.ResourceDecoder} to decode a resource.

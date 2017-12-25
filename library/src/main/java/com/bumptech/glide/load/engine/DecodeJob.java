@@ -267,6 +267,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
    */
   private void runWrapped() {
      switch (runReason) {
+       // 首次请求时
       case INITIALIZE:
         stage = getNextStage(Stage.INITIALIZE);
         currentGenerator = getNextGenerator();
@@ -301,16 +302,23 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     }
   }
 
+  /**
+   * 执行Generators
+   */
   private void runGenerators() {
+    // 获取当前线程
     currentThread = Thread.currentThread();
     startFetchTime = LogTime.getLogTime();
     boolean isStarted = false;
+    // currentGenerator.startNext() : 从当前策略对应的Generator获取数据，数据获取成功则回调DecodeJob的onDataFetcherReady对资源进行处理。否则尝试从下一个策略的Generator获取数据
     while (!isCancelled && currentGenerator != null
         && !(isStarted = currentGenerator.startNext())) {
       stage = getNextStage(stage);
+      // 根据Stage获取到相应的Generator后会执行currentGenerator.startNext()，如果中途startNext返回true，则直接回调，否则最终会得到SOURCE的stage，重新调度任务
       currentGenerator = getNextGenerator();
 
       if (stage == Stage.SOURCE) {
+        // 重新调度当前任务
         reschedule();
         return;
       }
