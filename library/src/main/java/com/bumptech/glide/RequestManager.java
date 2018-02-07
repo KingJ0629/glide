@@ -410,6 +410,7 @@ public class RequestManager implements LifecycleListener,
   @CheckResult
   @Override
   public RequestBuilder<Drawable> load(@Nullable String string) {
+    // asDrawable()中初始化了RequestBuilder，并给requestOptions赋值
     return asDrawable().load(string);
   }
 

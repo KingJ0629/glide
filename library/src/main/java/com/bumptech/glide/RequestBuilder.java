@@ -593,10 +593,11 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
     Request request = buildRequest(target, targetListener, options);
     // 获取原先target的请求
     Request previous = target.getRequest();
-    // 如果请求相同而且当前设置可以使用缓存
-    // 则请求回收
-    if (request.isEquivalentTo(previous)
-        && !isSkipMemoryCacheWithCompletePreviousRequest(options, previous)) {
+    // 判断新请求和原来缓存的请求是否一样
+    if (request.isEquivalentTo(previous) && !isSkipMemoryCacheWithCompletePreviousRequest(options, previous)) {
+
+      // 如果一样，就释放新请求
+      // 并且启动原来的请求
       request.recycle();
       // If the request is completed, beginning again will ensure the result is re-delivered,
       // triggering RequestListeners and Targets. If the request is failed, beginning again will
@@ -612,9 +613,11 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
       return target;
     }
 
+    // 如果不一样，清空原来缓存的target
     requestManager.clear(target);
+    // 并把新的请求用view的tag缓存起来
     target.setRequest(request);
-    // 请求追踪
+    // 启动新请求
     requestManager.track(target, request);
 
     return target;
@@ -643,16 +646,25 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
    */
   @NonNull
   public ViewTarget<ImageView, TranscodeType> into(@NonNull ImageView view) {
+    // 调用方法必须在主线程
     Util.assertMainThread();
+    // 判空
     Preconditions.checkNotNull(view);
 
+    /**
+     * Glide.with(this).load(new String())
+     * -->load
+     * -->{@link RequestManager#as(Class)}
+     * -->{@link RequestBuilder#RequestBuilder(Glide, RequestManager, Class, Context)}
+     * -->初始化{@link requestOptions} 值应该都是默认值
+     */
     RequestOptions requestOptions = this.requestOptions;
     if (!requestOptions.isTransformationSet()
         && requestOptions.isTransformationAllowed()
         && view.getScaleType() != null) {
       // Clone in this method so that if we use this RequestBuilder to load into a View and then
       // into a different target, we don't retain the transformation applied based on the previous
-      // View's scale type.
+      // View's scale type. 缩放类型
       switch (view.getScaleType()) {
         case CENTER_CROP:
           requestOptions = requestOptions.clone().optionalCenterCrop();
@@ -675,10 +687,9 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
       }
     }
 
-    return into(
-        glideContext.buildImageViewTarget(view, transcodeClass),
-        /*targetListener=*/ null,
-        requestOptions);
+    // transcodeClass : Drawable
+    // glideContext.buildImageViewTarget(view, transcodeClass) -- > DrawableImageViewTarget.class
+    return into(glideContext.buildImageViewTarget(view, transcodeClass), null, requestOptions);
   }
 
   /**

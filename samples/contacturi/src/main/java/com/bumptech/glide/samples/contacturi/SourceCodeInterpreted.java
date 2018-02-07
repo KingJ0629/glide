@@ -17,8 +17,17 @@ public class SourceCodeInterpreted extends Activity {
     super.onCreate(savedInstanceState);
 
     // 常用调用方法
-    Glide.with(this)
+    Glide
+        // 绑定生命周期
+        .with(this)
+
+        /**
+         * 把new String()赋值给RequestBuilder的Object model参数,并设置isModelSet为true
+         * {@link com.bumptech.glide.RequestBuilder#loadGeneric(Object)}
+         */
         .load(new String())
+
+
         .into(new ImageView(this));
   }
 }

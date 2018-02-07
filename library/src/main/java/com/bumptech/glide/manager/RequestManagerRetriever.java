@@ -329,10 +329,14 @@ public class RequestManagerRetriever implements Handler.Callback {
 
   RequestManagerFragment getRequestManagerFragment(
       @NonNull final android.app.FragmentManager fm, @Nullable android.app.Fragment parentHint) {
+    // 由于这个Fragment是个无UI的Fragment，可以通过findFragmentByTag(FRAGMENT_TAG)去查找这个RequestManagerFragment
+    // 但如果第一次进来，current就是null
+    // 无UI查找Fragment参考文章 http://blog.csdn.net/llp1992/article/details/41828237
     RequestManagerFragment current = (RequestManagerFragment) fm.findFragmentByTag(FRAGMENT_TAG);
     if (current == null) {
       current = pendingRequestManagerFragments.get(fm);
       if (current == null) {
+        // 初始化RequestManagerFragment并且绑定FRAGMENT_TAG放入FragmentManager
         current = new RequestManagerFragment();
         current.setParentFragmentHint(parentHint);
         pendingRequestManagerFragments.put(fm, current);
@@ -347,6 +351,9 @@ public class RequestManagerRetriever implements Handler.Callback {
   private RequestManager fragmentGet(@NonNull Context context,
       @NonNull android.app.FragmentManager fm,
       @Nullable android.app.Fragment parentHint) {
+    // 获取到一个无UI的Fragment，用来绑定Activity从而实现生命周期同步
+    // 因为glide无法直接获取activity的生命周期，通过activity的FragmentManager中加入一个隐藏的fragment，
+    // 因为fragment与传入的activity生命周期一致，所以只要监听这个RequestManagerFragment就能实现生命周期管理
     RequestManagerFragment current = getRequestManagerFragment(fm, parentHint);
     RequestManager requestManager = current.getRequestManager();
     if (requestManager == null) {
