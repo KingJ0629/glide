@@ -148,6 +148,8 @@ public class RequestManagerRetriever implements Handler.Callback {
   @NonNull
   public RequestManager get(@NonNull Activity activity) {
     if (Util.isOnBackgroundThread()) {
+      // 如果不是主线程，则context对象转为ApplicationContext，然后也不做绑定生命周期的操作，
+      // 图片加载的生命周期默认为Application的生命周期
       return get(activity.getApplicationContext());
     } else {
       assertNotDestroyed(activity);
