@@ -36,6 +36,7 @@ public class RequestManagerFragment extends Fragment {
   @Nullable private Fragment parentFragmentHint;
 
   public RequestManagerFragment() {
+    // 把自定义的lifecycle绑在fragment上
     this(new ActivityFragmentLifecycle());
   }
 
@@ -179,6 +180,9 @@ public class RequestManagerFragment extends Fragment {
     unregisterFragmentWithRoot();
   }
 
+  /**
+   * 把fragment生命周期传递给自定义的生命周期管理类ActivityFragmentLifecycle
+   */
   @Override
   public void onStart() {
     super.onStart();

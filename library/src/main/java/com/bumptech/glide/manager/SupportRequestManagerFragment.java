@@ -41,6 +41,7 @@ public class SupportRequestManagerFragment extends Fragment {
   // For testing only.
   @SuppressLint("ValidFragment")
   public SupportRequestManagerFragment(ActivityFragmentLifecycle lifecycle) {
+    // lifecycle赋值
     this.lifecycle = lifecycle;
   }
 
@@ -53,6 +54,9 @@ public class SupportRequestManagerFragment extends Fragment {
     this.requestManager = requestManager;
   }
 
+  /**
+   * 在构造方法中{@link #SupportRequestManagerFragment(ActivityFragmentLifecycle)}初始化lifecycle
+   */
   ActivityFragmentLifecycle getGlideLifecycle() {
     return lifecycle;
   }

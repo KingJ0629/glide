@@ -374,6 +374,7 @@ public class RequestManagerRetriever implements Handler.Callback {
     if (current == null) {
       current = pendingSupportRequestManagerFragments.get(fm);
       if (current == null) {
+        // 初始化SupportRequestManagerFragment
         current = new SupportRequestManagerFragment();
         current.setParentFragmentHint(parentHint);
         pendingSupportRequestManagerFragments.put(fm, current);
@@ -392,8 +393,9 @@ public class RequestManagerRetriever implements Handler.Callback {
     if (requestManager == null) {
       // TODO(b/27524013): Factor out this Glide.get() call.
       Glide glide = Glide.get(context);
-      requestManager =
-          factory.build(
+
+      // current.getGlideLifecycle()拿到自定义的生命周期管理对象来初始化requestManager
+      requestManager = factory.build(
               glide, current.getGlideLifecycle(), current.getRequestManagerTreeNode(), context);
       current.setRequestManager(requestManager);
     }
@@ -443,6 +445,7 @@ public class RequestManagerRetriever implements Handler.Callback {
     @Override
     public RequestManager build(@NonNull Glide glide, @NonNull Lifecycle lifecycle,
         @NonNull RequestManagerTreeNode requestManagerTreeNode, @NonNull Context context) {
+      // 在这里初始化RequestManager
       return new RequestManager(glide, lifecycle, requestManagerTreeNode, context);
     }
   };
