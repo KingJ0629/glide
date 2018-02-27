@@ -35,6 +35,7 @@ public class SupportRequestManagerFragment extends Fragment {
   @Nullable private Fragment parentFragmentHint;
 
   public SupportRequestManagerFragment() {
+    // 初始化Fragment的时候也顺便初始化了ActivityFragmentLifecycle
     this(new ActivityFragmentLifecycle());
   }
 

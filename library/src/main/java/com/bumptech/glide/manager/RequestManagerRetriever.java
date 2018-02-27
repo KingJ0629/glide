@@ -332,7 +332,7 @@ public class RequestManagerRetriever implements Handler.Callback {
   RequestManagerFragment getRequestManagerFragment(
       @NonNull final android.app.FragmentManager fm, @Nullable android.app.Fragment parentHint) {
     // 由于这个Fragment是个无UI的Fragment，可以通过findFragmentByTag(FRAGMENT_TAG)去查找这个RequestManagerFragment
-    // 但如果第一次进来，current就是null
+    // 但如果第一次进来，current就是null，如果已经创建过，可以通过fm对象找到已有的fragment对象
     // 无UI查找Fragment参考文章 http://blog.csdn.net/llp1992/article/details/41828237
     RequestManagerFragment current = (RequestManagerFragment) fm.findFragmentByTag(FRAGMENT_TAG);
     if (current == null) {
@@ -359,11 +359,14 @@ public class RequestManagerRetriever implements Handler.Callback {
     RequestManagerFragment current = getRequestManagerFragment(fm, parentHint);
     RequestManager requestManager = current.getRequestManager();
     if (requestManager == null) {
-      // TODO(b/27524013): Factor out this Glide.get() call.
+      // 初始化了图片加载引擎等内容，为后面的图片加载做准备
       Glide glide = Glide.get(context);
+
       requestManager =
           factory.build(
               glide, current.getGlideLifecycle(), current.getRequestManagerTreeNode(), context);
+
+      // 把对象保存在current，以便以后复用
       current.setRequestManager(requestManager);
     }
     return requestManager;
