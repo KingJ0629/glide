@@ -1,5 +1,6 @@
 package com.bumptech.glide.manager;
 
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.util.Util;
 import java.util.Collections;
 import java.util.Set;
@@ -46,6 +47,11 @@ class ActivityFragmentLifecycle implements Lifecycle {
 
   void onStart() {
     isStarted = true;
+    /**
+     * 遍历所有监听生命周期的类，回调它们
+     * 我们主流程是RequestManager 实现的LifecycleListener
+     * {@link RequestManager#onStart()}
+     */
     for (LifecycleListener lifecycleListener : Util.getSnapshot(lifecycleListeners)) {
       lifecycleListener.onStart();
     }

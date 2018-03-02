@@ -298,6 +298,7 @@ public class RequestManager implements LifecycleListener,
    */
   @Override
   public void onStart() {
+    // 启动先前被加入等待的请求队列
     resumeRequests();
     targetTracker.onStart();
   }
@@ -405,6 +406,7 @@ public class RequestManager implements LifecycleListener,
    * Equivalent to calling {@link #asDrawable()} and then {@link RequestBuilder#load(String)}.
    *
    * @return A new request builder for loading a {@link Drawable} using the given model.
+   * 返回一个用string（model）来加载这个{@link Drawable}的请求
    */
   @NonNull
   @CheckResult

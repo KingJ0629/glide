@@ -225,6 +225,10 @@ public final class SingleRequest<R> implements Request,
     assertNotCallingCallbacks();
     stateVerifier.throwIfRecycled();
     startTime = LogTime.getLogTime();
+
+    /**
+     * model为null的时候去执行加载{@link #loadDrawable}错误占位图或者普通占位图
+     */
     if (model == null) {
       if (Util.isValidDimensions(overrideWidth, overrideHeight)) {
         width = overrideWidth;
@@ -247,6 +251,10 @@ public final class SingleRequest<R> implements Request,
     // new load etc. This does mean that users who want to restart a load because they expect that
     // the view size has changed will need to explicitly clear the View or Target before starting
     // the new load.
+    // 机翻：如果我们在完成后重新启动（通常通过类似于notifyDataSetChanged的方式，
+    // 可以将相同的请求启动到同一个目标或视图中），那么我们可以简单地使用上次检索到的资源和大小，
+    // 并跳过获取新的大小，开始一个新的加载等等。这意味着，想要重新开始加载的用户，
+    // 因为他们期望视图大小已经改变，需要在开始新加载之前明确地清除视图或目标。
     if (status == Status.COMPLETE) {
       onResourceReady(resource, DataSource.MEMORY_CACHE);
       return;
@@ -254,11 +262,20 @@ public final class SingleRequest<R> implements Request,
 
     // Restarts for requests that are neither complete nor running can be treated as new requests
     // and can run again from the beginning.
-
+    // 没有完成的请求重新被启动，被看做是一个新情求
     status = Status.WAITING_FOR_SIZE;
+    // 判断图片尺寸是否已经被初始化过
     if (Util.isValidDimensions(overrideWidth, overrideHeight)) {
       onSizeReady(overrideWidth, overrideHeight);
     } else {
+      /**
+       * 若第一次加载，尺寸未初始化，主流程进入这里
+       * 在前面流程中{@link com.bumptech.glide.RequestBuilder#into(Target, RequestListener, RequestOptions)}
+       * target被赋值为DrawableImageViewTarget.class
+       * DrawableImageViewTarget 继承 ImageViewTarget， ImageViewTarget 继承 ViewTarget
+       * 故target.getSize(this) 调用的是{@link com.bumptech.glide.request.target.ViewTarget#getSize(SizeReadyCallback)}
+       * this对象是SingleRequest自身实现了SizeReadyCallback接口
+       */
       target.getSize(this);
     }
 
@@ -437,6 +454,7 @@ public final class SingleRequest<R> implements Request,
     if (status != Status.WAITING_FOR_SIZE) {
       return;
     }
+    // 改变加载状态
     status = Status.RUNNING;
 
     float sizeMultiplier = requestOptions.getSizeMultiplier();

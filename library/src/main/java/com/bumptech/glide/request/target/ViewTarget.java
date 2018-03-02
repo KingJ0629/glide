@@ -370,6 +370,7 @@ public abstract class ViewTarget<T extends View, Z> extends BaseTarget<Z> {
       int currentWidth = getTargetWidth();
       int currentHeight = getTargetHeight();
       if (isViewStateAndSizeValid(currentWidth, currentHeight)) {
+        // 计算出长宽，然后回调SingleRequest的onSizeReady方法
         cb.onSizeReady(currentWidth, currentHeight);
         return;
       }

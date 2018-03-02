@@ -37,6 +37,12 @@ public class RequestTracker {
    */
   public void runRequest(Request request) {
     requests.add(request);
+    /**
+     * 第一次进来的时候isPaused是true，故首次加载的主流程不会进入这个if，故加载图片的request也不会在这里被启动
+     * 具体在哪里启动呢，是在整个方法走完之后，绑定的fragment回调生命周期
+     * 在{@link RequestManagerFragment#onStart()} 中启动等待运行的加载请求
+     * 等待运行的请求列表是 {@link #requests}
+     */
     if (!isPaused) {
       request.begin();
     } else {
@@ -113,6 +119,7 @@ public class RequestTracker {
    */
   public void resumeRequests() {
     isPaused = false;
+    // 遍历等待中的请求，启动它们
     for (Request request : Util.getSnapshot(requests)) {
       if (!request.isComplete() && !request.isCancelled() && !request.isRunning()) {
         request.begin();

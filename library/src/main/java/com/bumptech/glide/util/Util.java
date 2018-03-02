@@ -176,6 +176,7 @@ public final class Util {
    * modify the original list.
    *
    * <p>See #303, #375, #322, #2262.
+   * 去掉null对象
    */
   @NonNull
   @SuppressWarnings("UseBulkOperation")

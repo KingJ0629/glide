@@ -589,7 +589,13 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
     }
 
     options = options.autoClone();
-    // 创建请求
+    /**
+     * 创建请求对象
+     * buildRequest的target参数初始化了singleRequest的target变量，后续流程会用到
+     * 由{@link RequestBuilder#obtainRequest(Target, RequestListener, RequestOptions, RequestCoordinator, TransitionOptions, Priority, int, int)}
+     * 这个方法的返回值可知，请求最终托管给SingleRequest的实现
+     * 后面会用到{@link SingleRequest#begin()}
+     */
     Request request = buildRequest(target, targetListener, options);
     // 获取原先target的请求
     Request previous = target.getRequest();
@@ -597,7 +603,6 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
     if (request.isEquivalentTo(previous) && !isSkipMemoryCacheWithCompletePreviousRequest(options, previous)) {
 
       // 如果一样，就释放新请求
-      // 并且启动原来的请求
       request.recycle();
       // If the request is completed, beginning again will ensure the result is re-delivered,
       // triggering RequestListeners and Targets. If the request is failed, beginning again will
@@ -617,7 +622,9 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
     requestManager.clear(target);
     // 并把新的请求用view的tag缓存起来
     target.setRequest(request);
-    // 启动新请求
+
+    // 首次加载主流程-->
+    // 把新请求加入等待队列
     requestManager.track(target, request);
 
     return target;
@@ -687,8 +694,12 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
       }
     }
 
-    // transcodeClass : Drawable
-    // glideContext.buildImageViewTarget(view, transcodeClass) -- > DrawableImageViewTarget.class
+    /**
+     * 首次加载主流程-->
+     * transcodeClass : Glide.with(context).load(new String())
+     * 在这里初始化RequestBuilder，把Drawable赋值给transcodeClass
+     * glideContext.buildImageViewTarget(view, transcodeClass) -- > DrawableImageViewTarget.class
+     */
     return into(glideContext.buildImageViewTarget(view, transcodeClass), null, requestOptions);
   }
 
@@ -932,6 +943,7 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
       int overrideWidth,
       int overrideHeight,
       RequestOptions requestOptions) {
+    // 是否有缩略图
     if (thumbnailBuilder != null) {
       // Recursive case: contains a potentially recursive thumbnail request builder.
       if (isThumbnailBuilt) {
@@ -1016,6 +1028,7 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
       return coordinator;
     } else {
       // Base case: no thumbnail.
+      // 首次加载的时候没有缩略图的情况
       return obtainRequest(
           target,
           targetListener,
