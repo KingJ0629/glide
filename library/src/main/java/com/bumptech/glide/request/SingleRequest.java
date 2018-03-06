@@ -447,6 +447,9 @@ public final class SingleRequest<R> implements Request,
    */
   @Override
   public void onSizeReady(int width, int height) {
+    /**
+     * 如果对象可回收(即当前在对象池中)，则抛出一个异常。
+     */
     stateVerifier.throwIfRecycled();
     if (IS_VERBOSE_LOGGABLE) {
       logV("Got onSizeReady in " + LogTime.getElapsedMillis(startTime));

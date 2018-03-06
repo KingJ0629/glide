@@ -69,6 +69,9 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
     callback.onDataReady(result);
   }
 
+  /**
+   * 在这个方法中去建立网络连接，获取数据
+   */
   private InputStream loadDataWithRedirects(URL url, int redirects, URL lastUrl,
       Map<String, String> headers) throws IOException {
     if (redirects >= MAXIMUM_REDIRECTS) {

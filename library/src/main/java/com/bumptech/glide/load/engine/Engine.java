@@ -170,18 +170,20 @@ public class Engine implements EngineJobListener,
     // 创建缓存key
     EngineKey key = keyFactory.buildKey(model, signature, width, height, transformations,
         resourceClass, transcodeClass, options);
-    // 从存活资源内读取数据, 内部缓存由value为弱引用对象的map做管理, 做手动的计数管理
-    // 当资源计数为0时, 则回收
+
+    // 一级缓存
+    // active的资源是指那些已经被提供给至少一个请求并且还没有被释放的资源。一旦资源的所有使用者都释放了该资源，资源就会去缓存。
     EngineResource<?> active = loadFromActiveResources(key, isMemoryCacheable);
     if (active != null) {
+      // 如果命中, 则回调加载
       cb.onResourceReady(active, DataSource.MEMORY_CACHE);
       if (Log.isLoggable(TAG, Log.VERBOSE)) {
         logWithTimeAndKey("Loaded resource from active resources", startTime, key);
       }
       return null;
     }
-    // 从内存中获取缓存数据
-    // 当内存缓存中有命中, 则将目标资源加到activeResources中
+
+    // 二级缓存
     EngineResource<?> cached = loadFromCache(key, isMemoryCacheable);
     if (cached != null) {
       // 如果命中, 则回调加载
