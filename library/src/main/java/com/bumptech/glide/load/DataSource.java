@@ -23,6 +23,7 @@ public enum DataSource {
   RESOURCE_DISK_CACHE,
   /**
    * Indicates data was retrieved from the in memory cache.
+   * 程序运行时的内存缓存
    */
   MEMORY_CACHE,
 }

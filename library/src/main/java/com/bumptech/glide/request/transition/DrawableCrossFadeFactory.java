@@ -27,6 +27,7 @@ public class DrawableCrossFadeFactory implements TransitionFactory<Drawable> {
 
   @Override
   public Transition<Drawable> build(DataSource dataSource, boolean isFirstResource) {
+    // 根据来源加载动画
     return dataSource == DataSource.MEMORY_CACHE
         ? NoTransition.<Drawable>get() : getResourceTransition();
   }

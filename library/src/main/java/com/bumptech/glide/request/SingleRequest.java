@@ -570,7 +570,8 @@ public final class SingleRequest<R> implements Request,
    *
    * @param resource original {@link Resource}, never <code>null</code>
    * @param result   object returned by {@link Resource#get()}, checked for type and never
-   *                 <code>null</code>
+   *                 <code>null</code>  缓存
+   * @param dataSource 缓存类型
    */
   private void onResourceReady(Resource<R> resource, R result, DataSource dataSource) {
     // We must call isFirstReadyResource before setting status.
@@ -590,8 +591,12 @@ public final class SingleRequest<R> implements Request,
           || !requestListener.onResourceReady(result, model, target, dataSource, isFirstResource))
           && (targetListener == null
           || !targetListener.onResourceReady(result, model, target, dataSource, isFirstResource))) {
-        Transition<? super R> animation =
-            animationFactory.build(dataSource, isFirstResource);
+        // 根据数据来源，加载不同的动画效果
+        Transition<? super R> animation = animationFactory.build(dataSource, isFirstResource);
+        /**
+         * targer 是 DrawableImageViewTarget,
+         * 故调用的是 {@link com.bumptech.glide.request.target.ImageViewTarget#onResourceReady(Object, Transition)}
+         */
         target.onResourceReady(result, animation);
       }
     } finally {
