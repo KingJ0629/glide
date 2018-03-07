@@ -52,6 +52,7 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
     long startTime = LogTime.getLogTime();
     final InputStream result;
     try {
+      // 请求数据
       result = loadDataWithRedirects(glideUrl.toURL(), 0 /*redirects*/, null /*lastUrl*/,
           glideUrl.getHeaders());
     } catch (IOException e) {
@@ -66,6 +67,7 @@ public class HttpUrlFetcher implements DataFetcher<InputStream> {
       Log.v(TAG, "Finished http url fetcher fetch in " + LogTime.getElapsedMillis(startTime)
           + " ms and loaded " + result);
     }
+    // 回调数据
     callback.onDataReady(result);
   }
 
