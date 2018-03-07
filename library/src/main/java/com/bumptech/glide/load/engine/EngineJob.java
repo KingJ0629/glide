@@ -215,6 +215,10 @@ class EngineJob<R> implements DecodeJob.Callback<R>,
       ResourceCallback cb = cbs.get(i);
       if (!isInIgnoredCallbacks(cb)) {
         engineResource.acquire();
+        /**
+         * Called when a resource is successfully loaded.
+         * 当资源ok的时候回调
+         */
         cb.onResourceReady(engineResource, dataSource);
       }
     }

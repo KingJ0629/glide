@@ -422,6 +422,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     }
     Resource<R> resource = null;
     try {
+      //通过decodeFromData方法把输入流解码并返回给resource,拿到我们想要的资源
       resource = decodeFromData(currentFetcher, currentData, currentDataSource);
     } catch (GlideException e) {
       e.setLoggingDetails(currentAttemptingKey, currentDataSource);

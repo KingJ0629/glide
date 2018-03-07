@@ -10,6 +10,7 @@ import android.util.Log;
 import com.bumptech.glide.GlideContext;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.Options;
 import com.bumptech.glide.load.engine.Engine;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.engine.Resource;
@@ -545,6 +546,10 @@ public final class SingleRequest<R> implements Request,
       return;
     }
 
+    /**
+     * {@link com.bumptech.glide.load.resource.transcode.BitmapDrawableTranscoder#transcode(Resource, Options)}
+     * 这里的resource就是{@link com.bumptech.glide.load.resource.bitmap.LazyBitmapDrawableResource}
+     */
     Object received = resource.get();
     if (received == null || !transcodeClass.isAssignableFrom(received.getClass())) {
       releaseResource(resource);

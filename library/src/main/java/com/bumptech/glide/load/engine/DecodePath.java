@@ -60,6 +60,10 @@ public class DecodePath<DataType, ResourceType, Transcode> {
       int height, Options options, List<Throwable> exceptions) throws GlideException {
     Resource<ResourceType> result = null;
     //noinspection ForLoopReplaceableByForEach to improve perf
+    /**
+     * 遍历decoders集合，分别的获取到ResourceDecoder解码器
+     * 主要包含两种：BitmapDrawable.class和GifDrawable.class。
+     */
     for (int i = 0, size = decoders.size(); i < size; i++) {
       ResourceDecoder<DataType, ResourceType> decoder = decoders.get(i);
       try {
