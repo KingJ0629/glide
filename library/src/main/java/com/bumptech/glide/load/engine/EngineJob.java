@@ -192,7 +192,6 @@ class EngineJob<R> implements DecodeJob.Callback<R>,
   @Synthetic
   void handleResultOnMainThread() {
     stateVerifier.throwIfRecycled();
-
     if (isCancelled) {
       resource.recycle();
       release(false /*isRemovedFromQueue*/);
