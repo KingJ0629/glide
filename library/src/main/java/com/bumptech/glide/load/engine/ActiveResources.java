@@ -56,6 +56,9 @@ final class ActiveResources {
     this.listener = listener;
   }
 
+  /**
+   * 缓存： HashMap保存的弱引用对象
+   */
   void activate(Key key, EngineResource<?> resource) {
     ResourceWeakReference toPut =
         new ResourceWeakReference(

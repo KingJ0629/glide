@@ -217,6 +217,9 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     }
   }
 
+  /**
+   * 启动加载任务
+   */
   @Override
   public void run() {
     // This should be much more fine grained, but since Java's thread pool implementation silently

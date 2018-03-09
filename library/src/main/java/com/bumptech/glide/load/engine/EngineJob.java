@@ -208,6 +208,7 @@ class EngineJob<R> implements DecodeJob.Callback<R>,
     // notifying if it synchronously released by one of the callbacks.
     // 如果同步发布了一个回调, 就不回收资源
     engineResource.acquire();
+    // 缓存数据
     listener.onEngineJobComplete(this, key, engineResource);
 
     //noinspection ForLoopReplaceableByForEach to improve perf

@@ -37,6 +37,7 @@ public abstract class DiskCacheStrategy {
 
   /**
    * Saves no data to cache.
+   * skipMemoryCache 关闭缓存
    */
   public static final DiskCacheStrategy NONE = new DiskCacheStrategy() {
     @Override

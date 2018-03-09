@@ -75,6 +75,7 @@ class SourceGenerator implements DataFetcherGenerator,
       DataCacheWriter<Object> writer =
           new DataCacheWriter<>(encoder, dataToCache, helper.getOptions());
       originalKey = new DataCacheKey(loadData.sourceKey, helper.getSignature());
+      // 写入磁盘缓存
       helper.getDiskCache().put(originalKey, writer);
       if (Log.isLoggable(TAG, Log.VERBOSE)) {
         Log.v(TAG, "Finished encoding source to cache"

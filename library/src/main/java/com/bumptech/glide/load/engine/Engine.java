@@ -144,7 +144,7 @@ public class Engine implements EngineJobListener,
    * @param width  The target width in pixels of the desired resource.
    * @param height The target height in pixels of the desired resource.
    * @param cb     The callback that will be called when the load completes.
-   * @param onlyRetrieveFromCache 仅存内存缓存加载
+   * @param onlyRetrieveFromCache 可能希望只要图片不在缓存中则加载直接失败(比如省流量模式？)
    */
   public <R> LoadStatus load(
       GlideContext glideContext,
@@ -171,6 +171,13 @@ public class Engine implements EngineJobListener,
     EngineKey key = keyFactory.buildKey(model, signature, width, height, transformations,
         resourceClass, transcodeClass, options);
 
+    /**
+     * 默认情况下，Glide 会在开始一个新的图片请求之前检查以下多级的缓存：
+     * 活动资源 (Active Resources) - 现在是否有另一个 View 正在展示这张图片？
+     * 内存缓存 (Memory cache) - 该图片是否最近被加载过并仍存在于内存中？
+     * 资源类型（Resource） - 该图片是否之前曾被解码、转换并写入过磁盘缓存？
+     * 数据来源 (Data) - 构建这个图片的资源是否之前曾被写入过文件缓存？
+     */
     // 一级缓存
     // active的资源是指那些已经被提供给至少一个请求并且还没有被释放的资源。一旦资源的所有使用者都释放了该资源，资源就会去缓存。
     EngineResource<?> active = loadFromActiveResources(key, isMemoryCacheable);
@@ -271,14 +278,20 @@ public class Engine implements EngineJobListener,
 
     EngineResource<?> cached = getEngineResourceFromCache(key);
     if (cached != null) {
+      // 引用计数加1
       cached.acquire();
+      // 保存进动态缓存
       activeResources.activate(key, cached);
     }
     return cached;
   }
 
+  /**
+   * 缓存：一个LinkedHashMap保存的缓存列表
+   */
   @SuppressWarnings("unchecked")
   private EngineResource<?> getEngineResourceFromCache(Key key) {
+    // 拿到缓存
     Resource<?> cached = cache.remove(key);
 
     final EngineResource<?> result;
@@ -311,6 +324,7 @@ public class Engine implements EngineJobListener,
       resource.setResourceListener(key, this);
 
       if (resource.isCacheable()) {
+        // 缓存
         activeResources.activate(key, resource);
       }
     }
