@@ -23,6 +23,10 @@ public class DrawableImageViewTarget extends ImageViewTarget<Drawable> {
     super(view, waitForLayout);
   }
 
+  /**
+   * 显示到View上面，流程结束!
+   * @param resource
+   */
   @Override
   protected void setResource(@Nullable Drawable resource) {
     view.setImageDrawable(resource);

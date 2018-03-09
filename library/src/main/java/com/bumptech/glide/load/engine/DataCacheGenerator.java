@@ -41,6 +41,9 @@ class DataCacheGenerator implements DataFetcherGenerator,
     this.cb = cb;
   }
 
+  /**
+   *  缓存策略拉取数据
+   */
   @Override
   public boolean startNext() {
     while (modelLoaders == null || !hasNextModelLoader()) {
@@ -54,6 +57,8 @@ class DataCacheGenerator implements DataFetcherGenerator,
       cacheFile = helper.getDiskCache().get(originalKey);
       if (cacheFile != null) {
         this.sourceKey = sourceId;
+
+        // modelLoaders 这个modelLoaders是拉取数据的方法
         modelLoaders = helper.getModelLoaders(cacheFile);
         modelLoaderIndex = 0;
       }

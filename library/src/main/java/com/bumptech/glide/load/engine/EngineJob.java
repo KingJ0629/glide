@@ -127,6 +127,7 @@ class EngineJob<R> implements DecodeJob.Callback<R>,
     } else if (hasLoadFailed) {
       cb.onLoadFailed(exception);
     } else {
+      // 绑定资源加载成功的回调
       cbs.add(cb);
     }
   }

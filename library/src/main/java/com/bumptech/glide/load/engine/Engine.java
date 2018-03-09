@@ -178,8 +178,10 @@ public class Engine implements EngineJobListener,
      * 资源类型（Resource） - 该图片是否之前曾被解码、转换并写入过磁盘缓存？
      * 数据来源 (Data) - 构建这个图片的资源是否之前曾被写入过文件缓存？
      */
-    // 一级缓存
-    // active的资源是指那些已经被提供给至少一个请求并且还没有被释放的资源。一旦资源的所有使用者都释放了该资源，资源就会去缓存。
+    /**
+     * active的资源是指那些已经被提供给至少一个请求并且还没有被释放的资源。一旦资源的所有使用者都释放了该资源，资源就会去缓存。
+     * 资源是HashMap保存的弱引用对象，当内存紧张的时候随时会被清理
+     */
     EngineResource<?> active = loadFromActiveResources(key, isMemoryCacheable);
     if (active != null) {
       // 如果命中, 则回调加载
@@ -190,7 +192,6 @@ public class Engine implements EngineJobListener,
       return null;
     }
 
-    // 二级缓存
     EngineResource<?> cached = loadFromCache(key, isMemoryCacheable);
     if (cached != null) {
       // 如果命中, 则回调加载
@@ -201,11 +202,11 @@ public class Engine implements EngineJobListener,
       return null;
     }
     // EngineJob : 调度DecodeJob, 添加, 移除资源回调, 并notify回调
+    /**
+     * onlyRetrieveFromCache参数意为自从缓存中加载数据
+     * jobs保存2个EngineJob，一个是普通的EngineJob，一个是只从缓存加载数据的EngineJob
+     */
     EngineJob<?> current = jobs.get(key, onlyRetrieveFromCache);
-    // 当前存活的资源和内存缓存都没有的情况下
-    // 1. 先判断是否有资源(resouce什么时候回调true 不明), 如果有, 则回调加载
-    // 2. 如果加载失败, 则加载抛出异常
-    // 3. 否则, 在资源回调中添加
     if (current != null) {
       current.addCallback(cb);
       if (Log.isLoggable(TAG, Log.VERBOSE)) {
@@ -245,7 +246,9 @@ public class Engine implements EngineJobListener,
 
     jobs.put(key, engineJob);
 
+    // 绑定回调
     engineJob.addCallback(cb);
+    // 启动decodeJob
     engineJob.start(decodeJob);
 
     if (Log.isLoggable(TAG, Log.VERBOSE)) {
@@ -272,6 +275,7 @@ public class Engine implements EngineJobListener,
   }
 
   private EngineResource<?> loadFromCache(Key key, boolean isMemoryCacheable) {
+    // 如果有配置不需要缓存就直接返回null
     if (!isMemoryCacheable) {
       return null;
     }

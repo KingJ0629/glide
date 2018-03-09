@@ -1050,6 +1050,9 @@ public class RequestBuilder<TranscodeType> implements Cloneable,
       Priority priority,
       int overrideWidth,
       int overrideHeight) {
+    /**
+     * SingleRequest去代理请求任务
+     */
     return SingleRequest.obtain(
         context,
         glideContext,
