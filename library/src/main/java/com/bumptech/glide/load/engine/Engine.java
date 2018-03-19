@@ -167,7 +167,25 @@ public class Engine implements EngineJobListener,
       ResourceCallback cb) {
     Util.assertMainThread();
     long startTime = LogTime.getLogTime();
-    // 创建缓存key
+    /**
+     * 创建缓存key
+     *
+     * 在 Glide v4 里，所有缓存键都包含至少两个元素：
+     *
+     * 1、请求加载的 model（File, Url, Url）
+     * 2、一个可选的 签名(Signature)
+     *
+     * 另外，步骤1-3(活动资源，内存缓存，资源磁盘缓存)的缓存键还包含一些其他数据，包括：
+     *
+     * 1、宽度和高度
+     * 2、可选的变换（Transformation）
+     * 3、额外添加的任何 选项(Options)
+     * 4、请求的数据类型 (Bitmap, GIF, 或其他)
+     *
+     * 活动资源和内存缓存使用的键还和磁盘资源缓存略有不同，以适应内存 选项(Options)，
+     * 比如影响 Bitmap 配置的选项或其他解码时才会用到的参数。
+     * 为了生成磁盘缓存上的缓存键名称，以上的每个元素会被哈希化以创建一个单独的字符串键名，并在随后作为磁盘缓存上的文件名使用
+     */
     EngineKey key = keyFactory.buildKey(model, signature, width, height, transformations,
         resourceClass, transcodeClass, options);
 
@@ -177,6 +195,12 @@ public class Engine implements EngineJobListener,
      * 内存缓存 (Memory cache) - 该图片是否最近被加载过并仍存在于内存中？
      * 资源类型（Resource） - 该图片是否之前曾被解码、转换并写入过磁盘缓存？
      * 数据来源 (Data) - 构建这个图片的资源是否之前曾被写入过文件缓存？
+     *
+     * 默认的策略叫做 AUTOMATIC ，它会尝试对本地和远程图片使用最佳的策略。
+     * 当你加载远程数据（比如，从URL下载）时，AUTOMATIC 策略仅会存储未被你的加载过程修改过
+     * (比如，变换，裁剪–译者注)的原始数据，因为下载远程数据相比调整磁盘上已经存在的数据要昂贵得多。
+     * 对于本地数据，AUTOMATIC 策略则会仅存储变换过的缩略图，因为即使你需要再次生成另一个尺寸或类型的图片，
+     * 取回原始数据也很容易。
      */
     /**
      * active的资源是指那些已经被提供给至少一个请求并且还没有被释放的资源。一旦资源的所有使用者都释放了该资源，资源就会去缓存。

@@ -256,7 +256,13 @@ public class Glide implements ComponentCallbacks2 {
     if (annotationGeneratedModule != null) {
       annotationGeneratedModule.applyOptions(applicationContext, builder);
     }
+
+
+    // 初始化Glide各种模式
     Glide glide = builder.build(applicationContext);
+
+
+
     for (com.bumptech.glide.module.GlideModule module : manifestModules) {
       module.registerComponents(applicationContext, glide, glide.registry);
     }
